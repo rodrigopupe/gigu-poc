@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gigu_poc/home_page.dart';
+import 'package:gigu_poc/root_page.dart';
 
 void main() {
   runApp(const GiguApp());
@@ -14,7 +14,7 @@ class GiguApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'mini-GigU',
       theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-      home: const HomePage(),
+      home: const RootPage(),
     );
   }
 }
