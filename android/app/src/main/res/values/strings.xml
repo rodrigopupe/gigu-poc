@@ -2,4 +2,8 @@
 <resources>
     <string name="accessibility_service_label">mini-GigU</string>
     <string name="accessibility_service_description">Lê o texto de apps de corrida selecionados para calcular se a oferta compensa. Nada sai do aparelho.</string>
+    <string name="verdict_worth_label">VALE A PENA</string>
+    <string name="verdict_not_worth_label">NÃO COMPENSA</string>
+    <string name="net_amount_info">Sobra %s  ·  %s/km</string>
+    <string name="gross_amount_info">Bruto %s  ·  %s km  ·  %d min</string>
 </resources>

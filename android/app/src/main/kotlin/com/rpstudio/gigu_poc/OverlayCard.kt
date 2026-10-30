@@ -1,24 +1,22 @@
 package com.rpstudio.gigu_poc
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
+import android.content.res.ColorStateList
 import android.graphics.PixelFormat
-import android.graphics.Typeface
-import android.graphics.drawable.GradientDrawable
 import android.os.Handler
 import android.os.Looper
 import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
-import android.widget.FrameLayout
-import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.util.Locale
-import androidx.core.graphics.toColorInt
 
 /** "R$ 7,70" a partir de um BigDecimal (2 casas, vírgula decimal). */
 fun BigDecimal.toBrl(): String = "R$ " + formatPtBr("#,##0.00")
@@ -69,45 +67,40 @@ class OverlayCard(private val context: Context) {
         return params
     }
 
+    @SuppressLint("InflateParams")
     private fun buildView(offer: RideOffer, verdict: Verdict): View {
-        val verdictColor = (if (verdict.worth) "#2E7D32" else "#C62828").toColorInt()
+        val view = LayoutInflater.from(context).inflate(R.layout.layout_overlay_card, null)
+        val cardContainer = view.findViewById<View>(R.id.cardContainer)
+        val tvVerdict = view.findViewById<TextView>(R.id.tvVerdict)
+        val tvNetAmountInfo = view.findViewById<TextView>(R.id.tvNetAmountInfo)
+        val tvGrossAmountInfo = view.findViewById<TextView>(R.id.tvGrossAmountInfo)
 
-        val card = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(dp(16), dp(12), dp(16), dp(12))
-            background = GradientDrawable().apply {
-                setColor(verdictColor)
-                cornerRadius = dp(16).toFloat()
-            }
-            addView(
-                text(if (verdict.worth) "VALE A PENA" else "NÃO COMPENSA", 22f, bold = true)
-            )
-            addView(
-                text("Sobra ${verdict.netBrl.toBrl()}  ·  ${verdict.netPerKm.toBrl()}/km", 16f)
-            )
-            addView(
-                text(
-                    "Bruto ${offer.priceBrl.toBrl()}  ·  ${offer.totalKm.toKmText()} km  ·  ${offer.totalMinutes} min",
-                    14f
-                )
-            )
-        }
+        val colorRes = if (verdict.worth)
+            R.color.verdict_worth
+        else
+            R.color.verdict_not_worth
 
-        // Margem em volta do card.
-        return FrameLayout(context).apply {
-            setPadding(dp(12), dp(12), dp(12), 0)
-            addView(card)
-        }
+        val labelRes = if (verdict.worth)
+            R.string.verdict_worth_label
+        else
+            R.string.verdict_not_worth_label
+
+        cardContainer.backgroundTintList = ColorStateList.valueOf(ContextCompat.getColor(context, colorRes))
+        tvVerdict.text = context.getString(labelRes)
+        tvNetAmountInfo.text = context.getString(
+            R.string.net_amount_info,
+            verdict.netBrl.toBrl(),
+            verdict.netPerKm.toBrl()
+        )
+        tvGrossAmountInfo.text = context.getString(
+            R.string.gross_amount_info,
+            offer.priceBrl.toBrl(),
+            offer.totalKm.toKmText(),
+            offer.totalMinutes
+        )
+
+        return view
     }
-
-    private fun text(value: String, sizeSp: Float, bold: Boolean = false) = TextView(context).apply {
-        text = value
-        textSize = sizeSp
-        setTextColor(Color.WHITE)
-        if (bold) setTypeface(typeface, Typeface.BOLD)
-    }
-
-    private fun dp(value: Int): Int = (value * context.resources.displayMetrics.density).toInt()
 
     private companion object {
         const val AUTO_HIDE_MS = 5000L
