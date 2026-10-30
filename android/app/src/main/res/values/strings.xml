@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="accessibility_service_label">mini-GigU</string>
+    <string name="accessibility_service_description">Lê o texto de apps de corrida selecionados para calcular se a oferta compensa. Nada sai do aparelho.</string>
+</resources>

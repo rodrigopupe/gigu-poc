@@ -10,7 +10,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   static const _control = MethodChannel('gigu_poc/control');
   static const _events = EventChannel('gigu_poc/events');
 
@@ -25,20 +25,24 @@ class _HomePageState extends State<HomePage> {
     _subscription = _events.receiveBroadcastStream().listen((event) {
       setState(() => _log.insert(0, event as String));
     });
-    _refresh();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _refresh();
   }
 
   @override
   void dispose() {
     _subscription?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   Future<void> _refresh() async {
     final enabled = await _control.invokeMethod<bool>('isServiceEnabled') ?? false;
     final saved = await _control.invokeMethod<List<dynamic>>('getLog') ?? [];
-
-    debugPrint('refresh: enabled=$enabled saved=${saved.length}');
 
     if (!mounted) return;
 
@@ -82,11 +86,13 @@ class _HomePageState extends State<HomePage> {
           ),
           const Divider(),
           Expanded(
-            child: ListView.builder(
-              itemCount: _log.length,
-              itemBuilder: (_, i) => ListTile(
-                dense: true,
-                title: Text(_log[i]),
+            child: ExcludeSemantics(
+              child: ListView.builder(
+                itemCount: _log.length,
+                itemBuilder: (_, i) => ListTile(
+                  dense: true,
+                  title: Text(_log[i]),
+                ),
               ),
             ),
           ),
